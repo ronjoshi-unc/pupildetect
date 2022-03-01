@@ -11,6 +11,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/objdetect/objdetect.hpp>
+#include <opencv2/dnn.hpp>
 
 #include <iostream>
 #include <queue>
@@ -234,35 +235,38 @@ void detectAndDisplay( cv::Mat frame ) {
 
   for( int i = 0; i < faces.size(); i++ )
   {
-    rectangle(debugImage, faces[i], 1234);
+    //rectangle(debugImage, faces[i], 1234);
   }
   //-- Show what you got
   if (faces.size() > 0) {
     findEyes(frame_gray, faces[0]);
   }
-}
-
-/*
-int main(int argc, const char * argv[]) {
-    // insert code here...
-    std::cout << "Hello, World!\n";
-    cv::Mat abc;
-    std::cout << abc;
     
-    cv::Mat image = cv::imread("neg_ext.jpeg");
-    cv::imshow("My image", image);
-    cv::waitKey(0);
+    const std::string tensorflowConfigFile = "/Users/ronjoshi/CameraSample3/CameraSample3/opencv_face_detector.pbtxt";
+    const std::string tensorflowWeightFile = "/Users/ronjoshi/CameraSample3/CameraSample3/opencv_face_detector_uint8.pb";
+    
+    cv::dnn::Net net = cv::dnn::readNetFromTensorflow(tensorflowWeightFile, tensorflowConfigFile);
+    cv::Mat inputBlob = cv::dnn::blobFromImage(frame, 1.25, cv::Size(224, 224));
+    net.setInput(inputBlob, "data");
+    cv::Mat detection = net.forward("detection_out");
+    cv::Mat detectionMat(detection.size[2], detection.size[3], CV_32F, detection.ptr<float>());
+    
+    cv::Rect rect;
+    for(int i = 0; i < detectionMat.rows; i++)
+      {
+          float confidence = detectionMat.at<float>(i, 2);
+          if(confidence > 0.8)
+          {
+              int x1 = static_cast<int>(detectionMat.at<float>(i, 3) * frame.cols);
+              int y1 = static_cast<int>(detectionMat.at<float>(i, 4) * frame.rows);
+              int x2 = static_cast<int>(detectionMat.at<float>(i, 5) * frame.cols);
+              int y2 = static_cast<int>(detectionMat.at<float>(i, 6) * frame.rows);
+              rect = cv::Rect(x1, y1, x2-x1, y2-y1);
+              cv::rectangle(debugImage, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(0, 255, 0),2, 4);
+              break;
+          }
+      }
+    
+    //findEyes(frame_gray, rect);
      
-    
-    cv::VideoCapture cap(0);
-    cv::Mat img;
-    while(true) {
-        cap.read(img);
-        cv::imshow("Image", img);
-        cv::waitKey(1);
-    }
-    
-    
-    return 0;
 }
-*/

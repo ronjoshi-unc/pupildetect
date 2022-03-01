@@ -127,6 +127,8 @@ cv::Point findEyeCenter(cv::Mat face, cv::Rect eye, std::string debugWindow) {
   //double gradientThresh = 0;
   //normalize
     
+    imshow(debugWindow,eyeROI);
+    
   for (int y = 0; y < eyeROI.rows; ++y) {
     double *Xr = gradientX.ptr<double>(y), *Yr = gradientY.ptr<double>(y);
     const double *Mr = mags.ptr<double>(y);
@@ -143,7 +145,7 @@ cv::Point findEyeCenter(cv::Mat face, cv::Rect eye, std::string debugWindow) {
     }
   }
     //TODO: this makes no sense. The "mags" matrix is a white image with black dots scattered about.
-    imshow(debugWindow,mags);
+    
 
     
   //-- Create a blurred and inverted image for weighting
@@ -165,7 +167,7 @@ cv::Point findEyeCenter(cv::Mat face, cv::Rect eye, std::string debugWindow) {
   // for each possible gradient location
   // Note: these loops are reversed from the way the paper does them
 
-  printf("Eye Size: %ix%i\n",outSum.cols,outSum.rows);
+  //printf("Eye Size: %ix%i\n",outSum.cols,outSum.rows);
   for (int y = 0; y < weight.rows; ++y) {
     const double *Xr = gradientX.ptr<double>(y), *Yr = gradientY.ptr<double>(y);
     for (int x = 0; x < weight.cols; ++x) {
