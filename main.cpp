@@ -116,6 +116,9 @@ int main( int argc, const char** argv ) {
 }
 
 void findEyes(cv::Mat frame_gray, cv::Rect face) {
+    if(frame_gray.empty()) {
+        printf("empty");
+    }
   cv::Mat faceROI = frame_gray(face);
   cv::Mat debugFace = faceROI;
 
@@ -238,7 +241,8 @@ void detectAndDisplay( cv::Mat frame ) {
   //equalizeHist( frame_gray, frame_gray );
   //cv::pow(frame_gray, CV_64F, frame_gray);
   //-- Detect faces
-  /*face_cascade.detectMultiScale( frame_gray, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE|CV_HAAR_FIND_BIGGEST_OBJECT, cv::Size(150, 150) );
+    /*
+  face_cascade.detectMultiScale( frame_gray, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE|CV_HAAR_FIND_BIGGEST_OBJECT, cv::Size(150, 150) );
 //  findSkin(debugImage);
 
   for( int i = 0; i < faces.size(); i++ )
@@ -269,8 +273,15 @@ void detectAndDisplay( cv::Mat frame ) {
               int y1 = static_cast<int>(detectionMat.at<float>(i, 4) * frame.rows);
               int x2 = static_cast<int>(detectionMat.at<float>(i, 5) * frame.cols);
               int y2 = static_cast<int>(detectionMat.at<float>(i, 6) * frame.rows);
-              rect = cv::Rect(x1, y1, x2-x1, y2-y1);
-              cv::rectangle(debugImage, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(0, 255, 0),2, 4);
+              
+              //fixing face frame code:
+              int x2_1 = floor(x1 + (x2-x1)*1.1);
+              int x2_2 = floor(x1 + (x2-x1)*1.2);
+              int x2_3 = floor(x1 + (x2-x1)*1.3);
+              int x2_4 = floor(x1 + (x2-x1)*1.4);
+              
+              rect = cv::Rect(x1, y1, x2_2-x1, y2-y1);
+              cv::rectangle(debugImage, cv::Point(x1, y1), cv::Point(x2_2, y2), cv::Scalar(0, 255, 0),2, 4);
               break;
           }
       }
