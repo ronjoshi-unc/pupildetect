@@ -236,12 +236,19 @@ void detectAndDisplay( cv::Mat frame ) {
   std::vector<cv::Mat> rgbChannels(3);
   cv::split(frame, rgbChannels);
   cv::Mat frame_gray = rgbChannels[2];
+    
+    cv::Rect rect;
 
   //cvtColor( frame, frame_gray, CV_BGR2GRAY );
   //equalizeHist( frame_gray, frame_gray );
   //cv::pow(frame_gray, CV_64F, frame_gray);
-  //-- Detect faces
-    /*
+    
+    
+  //--HARR CASCADE CLASSIFIER DETECTION:
+    
+    
+    auto startTime= std::chrono::steady_clock::now();
+
   face_cascade.detectMultiScale( frame_gray, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE|CV_HAAR_FIND_BIGGEST_OBJECT, cv::Size(150, 150) );
 //  findSkin(debugImage);
 
@@ -251,8 +258,20 @@ void detectAndDisplay( cv::Mat frame ) {
   }
   //-- Show what you got
   if (faces.size() > 0) {
-    findEyes(frame_gray, faces[0]);
-  }*/
+    rect = faces[0];
+  }
+    
+    auto endTime = std::chrono::steady_clock::now();
+    
+    //--END HARR CASCADE CLASSIFIER DETECTION
+    
+    
+    
+    
+    //--TENSOR FLOW FACE DETECTION:
+    /*
+    
+    auto startTime= std::chrono::steady_clock::now();
     
     const std::string tensorflowConfigFile = "/Users/ronjoshi/CameraSample3/CameraSample3/opencv_face_detector.pbtxt";
     const std::string tensorflowWeightFile = "/Users/ronjoshi/CameraSample3/CameraSample3/opencv_face_detector_uint8.pb";
@@ -263,7 +282,6 @@ void detectAndDisplay( cv::Mat frame ) {
     cv::Mat detection = net.forward("detection_out");
     cv::Mat detectionMat(detection.size[2], detection.size[3], CV_32F, detection.ptr<float>());
     
-    cv::Rect rect;
     for(int i = 0; i < detectionMat.rows; i++)
       {
           float confidence = detectionMat.at<float>(i, 2);
@@ -285,6 +303,15 @@ void detectAndDisplay( cv::Mat frame ) {
               break;
           }
       }
+    
+    auto endTime = std::chrono::steady_clock::now();
+    
+    //----END TENSOR FLOW FACE DETECTION
+    */
+    
+    std::chrono::duration<double> diff = endTime - startTime;
+    
+    printf("%f\n", diff.count());
     
     findEyes(frame_gray, rect);
      
